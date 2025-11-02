@@ -14,7 +14,7 @@
 
   - name : Install tomcat 
     apt :
-      name : tomcat 
+      name : tomcat9 
       state : present
 
   - name : Start tomcat service
