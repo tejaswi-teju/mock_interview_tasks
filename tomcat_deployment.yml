@@ -1,0 +1,28 @@
+# Task is to deploy tomcat in an EC2 instace using anisble playbook
+
+---
+- name : Tomcat deployment
+  hosts : webservers
+  user : ubuntu
+  become : yes
+
+  tasks :
+  - name : update and upgrade instance
+    apt :
+      update_cache : yes
+      force_apt_get : yes
+
+  - name : Install tomcat 
+    apt :
+      name : tomcat 
+      state : present
+
+  - name : Start tomcat service
+    service :
+      name : tomcat
+      state : started
+
+  - name : index.html to access the webpage
+    copy :
+      src : ./index.html
+      dest : /var/lib/tomcat/webapps/ROOT/index.html
