@@ -19,10 +19,10 @@
 
   - name : Start tomcat service
     service :
-      name : tomcat
+      name : tomcat9
       state : started
 
   - name : index.html to access the webpage
     copy :
       src : ./index.html
-      dest : /var/lib/tomcat/webapps/ROOT/index.html
+      dest : /var/lib/tomcat9/webapps/ROOT/index.html
