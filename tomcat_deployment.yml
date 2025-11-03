@@ -32,8 +32,8 @@
   - name : Set requireed ownships and permissions
     shell : |
       sudo chown -R tomcat:tomcat /opt/tomcat
-      sudo chmod -R g+r /opt/tomcat/conf
-      sudo chmod g+x /opt/tomcat/conf
+      sudo chmod -R g+r /opt/tomcat
+      sudo chmod g+x /opt/tomcat
 
   - name : Create a new tomcat.service system service file. and Start tomcat service
     shell : | 
