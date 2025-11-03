@@ -6,6 +6,11 @@
   user : ubuntu
   become : yes
 
+  vars :
+    tomcat_user : 'tomcat'
+    tomcat_group : 'tomcat'
+    tomcat_home : '/opt/tomcat'
+
   tasks :
   - name : update and upgrade instance
     apt :
@@ -19,25 +24,65 @@
 
   - name : Create tomcat user with /opt/tomcat as the home directory and a member of the tomcat group.
     shell : |
-      sudo groupadd tomcat || true
-      sudo useradd -s /bin/false -g tomcat -d /opt/tomcat tomcat || true
+      sudo groupadd {{tomcat_group}} || true
+      sudo useradd -s /bin/false -g {{tomcat_group}} -d {{tomcat_home}} {{tomcat_user}} || true
 
-  - name : Install Tomcat
+    #- name : Install Tomcat
+    #shell : |
+    #  wget -O tomcat.tar.gz https://dlcdn.apache.org/tomcat/tomcat-11/v11.0.1/bin/apache-tomcat-11.0.1.tar.gz
+    #  sudo mkdir /opt/tomcat
+    #  sudo tar -xvzf tomcat.tar.gz -C /opt/tomcat --strip-components=1
+    #  sudo rm -rf tomcat.tar.gz 
+
+  - name : Download tomcat
+    get_url :
+      url : https://dlcdn.apache.org/tomcat/tomcat-11/v11.0.1/bin/apache-tomcat-11.0.1.tar.gz
+      dest : /tmp/tomcat.tar.gz
+  
+  - name : Extract tomcat to /opt/tomcat directory
+    unarchive :
+      remote_src : yes
+      src : /tmp/tomcat.tar.gz
+      dest : {{tomcat_home}}
+      extra_opts: [--strip-components=1]
+      owner : {{tomcat_user}}
+      group : {{tomcat_group}}
+
+  - name : Set required ownships and permissions for tomcat home directory
     shell : |
-      wget -O tomcat.tar.gz https://dlcdn.apache.org/tomcat/tomcat-11/v11.0.1/bin/apache-tomcat-11.0.1.tar.gz
-      sudo mkdir /opt/tomcat
-      sudo tar -xvzf tomcat.tar.gz -C /opt/tomcat --strip-components=1
-      sudo rm -rf tomcat.tar.gz
+      sudo chown -R {{tomcat_user}}:{{tomcat_group}} {{tomcat_home}}
+      sudo chmod -R g+r {{tomcat_home}}
+      sudo chmod g+x {{tomcat_home}}
 
-  - name : Set requireed ownships and permissions
-    shell : |
-      sudo chown -R tomcat:tomcat /opt/tomcat
-      sudo chmod -R g+r /opt/tomcat
-      sudo chmod g+x /opt/tomcat
+  - name : Create a new tomcat.service system service file.
+    copy:
+      dest: /etc/systemd/system/tomcat.service
+      content: |
+        [Unit]
+        Description=Apache Tomcat Web Application Container
+        After=network.target
 
-  - name : Create a new tomcat.service system service file. and Start tomcat service
+        [Service]
+        Type=forking
+
+        User={{ tomcat_user }}
+        Group={{ tomcat_group }}
+
+        Environment="JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+        Environment="CATALINA_PID={{ tomcat_home }}/temp/tomcat.pid"
+        Environment="CATALINA_HOME={{ tomcat_home }}"
+        Environment="CATALINA_BASE={{ tomcat_home }}"
+        Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
+        Environment="JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom"
+
+        ExecStart={{ tomcat_home }}/bin/startup.sh
+        ExecStop={{ tomcat_home }}/bin/shutdown.sh
+
+        [Install]
+        WantedBy=multi-user.target
+
+  - name : Start tomcat service
     shell : | 
-      #sudo nano /etc/systemd/system/tomcat.service
       sudo systemctl daemon-reload
       sudo systemctl enable tomcat
       sudo systemctl start tomcat
