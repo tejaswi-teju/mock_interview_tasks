@@ -37,7 +37,7 @@
 
   - name : Create a new tomcat.service system service file. and Start tomcat service
     shell : | 
-      sudo nano /etc/systemd/system/tomcat.service
+      #sudo nano /etc/systemd/system/tomcat.service
       sudo systemctl daemon-reload
       sudo systemctl enable tomcat
       sudo systemctl start tomcat
