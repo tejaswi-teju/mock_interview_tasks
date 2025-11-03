@@ -17,7 +17,7 @@ pipeline {
                 CPU_USAGE=$(echo "100 - $CPU_IDLE" | bc)
 
                 # Calculation Memory Usage
-                MEMORY_USAGE=$(free | awk '/Mem/ print{$3/$2 * 100}')
+                MEMORY_USAGE=$(free | awk '/Mem/{print $3/$2 * 100}')
 
                 # Calculating System Uptime
                 SYSTEM_UPTIME=$(uptime | awk '{print $3}')
