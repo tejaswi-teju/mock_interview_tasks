@@ -19,8 +19,8 @@
 
   - name : Create tomcat user with /opt/tomcat as the home directory and a member of the tomcat group.
     shell : |
-      sudo groupadd tomcat
-      sudo useradd -s /bin/false -g tomcat -d /opt/tomcat tomcat
+      sudo groupadd tomcat || true
+      sudo useradd -s /bin/false -g tomcat -d /opt/tomcat tomcat || true
 
   - name : Install Tomcat
     shell : |
