@@ -26,7 +26,7 @@ pipeline {
                 echo "Health checks based on CPU, memory utilization and System uptime"
                 echo "-----------------------------------------------------------------"
 
-                ALERT_MSG = ""
+                ALERT_MSG=""
                 
                 if ["$CPU_USAGE" -gt "$CPU_THRESHOLD"]; then
                     ALERT_MSG+="Cpu usage alert. Please check the system"\n
