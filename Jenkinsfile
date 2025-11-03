@@ -14,7 +14,7 @@ pipeline {
 
                 # Calculating CPU Usage
                 CPU_IDLE = $(top -bn1 | grep 'Cpu(s)' | sed 's/.*, *\\([0-9.]*\\)%* id.*/\\1/' | awk '{print $1}')
-                CPU_USAGE = $(echo "100 - $cpu_idle" | bc)
+                CPU_USAGE = $(echo "100 - $CPU_IDLE" | bc)
 
                 # Calculation Memory Usage
                 MEMORY_USAGE = $(free | awk '/Mem/ print{$3/$2 * 100}')
