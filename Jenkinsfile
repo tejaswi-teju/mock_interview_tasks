@@ -49,6 +49,7 @@ pipeline {
 
                 '''
             }
+        }
 
         stage ("E-mail Notification") {
             steps {
