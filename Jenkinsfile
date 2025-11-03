@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        CPU_THRESHOLD = '10'
-        MEMORY_THRESHOLD = '10'
-        UPTIME_THRESHOLD = '10'
+        CPU_THRESHOLD = '0'
+        MEMORY_THRESHOLD = '0'
+        UPTIME_THRESHOLD = '0'
     }
 
     stages {
@@ -13,13 +13,14 @@ pipeline {
                 sh '''
 
                 # Calculating CPU Usage
-                CPU_USAGE = $(top -bn1 | grep 'CPU(s)' | awk 'print{100-$8}')
+                CPU_IDLE = $(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print $1}')
+                CPU_USAGE = $(echo "100 - $cpu_idle" | bc)
 
                 # Calculation Memory Usage
                 MEMORY_USAGE = $(free | awk '/Mem/ print{$3/$2 * 100}')
 
                 # Calculating System Uptime
-                SYSTEM_UPTIME = $(uptime | awk '{print int($1/3600)}')
+                SYSTEM_UPTIME = $(uptime | awk '{print $3}')
 
                 echo "----------------------------------------------------------------"
                 echo "Health checks based on CPU, memory utilization and System uptime"
@@ -52,8 +53,8 @@ pipeline {
         stage ("E-mail Notification") {
             steps {
                 emailext (
-                    to : "tejaswiteju211@gmail.com"
-                    subject : "Health check reports"
+                    to : "tejaswiteju211@gmail.com",
+                    subject : "Health check reports",
                     body : "${readFile('health_checks.txt')}"
                 )
 
