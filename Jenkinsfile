@@ -20,7 +20,7 @@ pipeline {
                 MEMORY_USAGE=$(free | awk '/Mem/{print $3/$2 * 100}')
 
                 # Calculating System Uptime
-                SYSTEM_UPTIME=$(uptime | awk '{print $3}')
+                SYSTEM_UPTIME=$(cat /proc/uptime | awk '{print $1/3600}')
 
                 echo "----------------------------------------------------------------"
                 echo "Health checks based on CPU, memory utilization and System uptime"
