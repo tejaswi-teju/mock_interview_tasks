@@ -14,13 +14,13 @@ pipeline {
 
                 # Calculating CPU Usage
                 CPU_IDLE=$(top -bn1 | grep 'Cpu(s)' | sed 's/.*, *\\([0-9.]*\\)%* id.*/\\1/' | awk '{print $1}')
-                CPU_USAGE=$(echo "100 - $CPU_IDLE" | bc)
+                CPU_USAGE=$(printf "%.0f" $(echo "100 - $CPU_IDLE" | bc))
 
                 # Calculation Memory Usage
-                MEMORY_USAGE=$(free | awk '/Mem/{print $3/$2 * 100}')
+                MEMORY_USAGE=$(free | awk '/Mem/{printf "%.0f", $3/$2 * 100}')
 
                 # Calculating System Uptime
-                SYSTEM_UPTIME=$(cat /proc/uptime | awk '{print $1/3600}')
+                SYSTEM_UPTIME=$(cat /proc/uptime | awk '{printf "%.0f", $1/3600}')
 
                 echo "----------------------------------------------------------------"
                 echo "Health checks based on CPU, memory utilization and System uptime"
@@ -40,7 +40,7 @@ pipeline {
                     ALERT_MSG+="System Uptime alert. Please check the system"\n
                 fi 
 
-                if [-z "$ALERT_MSG"]; then
+                if [ -z "$ALERT_MSG" ]; then
                     echo "System Health is good"
                     ALERT_MSG="System Health is good"
                 fi
